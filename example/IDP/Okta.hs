@@ -15,17 +15,8 @@ import URI.ByteString
 import URI.ByteString.QQ
 import Utils
 
-data Okta = Okta
+data Okta = Okta OAuth2
   deriving (Show, Generic)
-
-oktaKey :: OAuth2
-oktaKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://dev-148986.oktapreview.com/oauth2/v1/authorize|]
-  , oauthAccessTokenEndpoint = [uri|https://dev-148986.oktapreview.com/oauth2/v1/token|]
-  }
 
 userInfoUri :: URI
 userInfoUri = [uri|https://hw2.trexcloud.com/oauth2/v1/userinfo|]
@@ -38,10 +29,10 @@ instance IDP Okta
 instance HasLabel Okta
 
 instance HasTokenReq Okta where
-  tokenReq _ mgr = fetchAccessToken mgr oktaKey
+  tokenReq (Okta key) mgr = fetchAccessToken mgr key
 
 instance HasTokenRefreshReq Okta where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr oktaKey
+  tokenRefreshReq (Okta key) mgr = refreshAccessToken mgr key
 
 instance HasUserReq Okta where
   userReq _ mgr at = do
@@ -53,9 +44,9 @@ instance HasUserReq Okta where
 -- Okta Custom AS does support consent via config (what scope shall prompt consent)
 --
 instance HasAuthUri Okta where
-  authUri _ =
+  authUri (Okta key) =
     createCodeUri
-      oktaKey
+      key
       [ ("state", "Okta.test-state-123"),
         ( "scope",
           "openid profile"

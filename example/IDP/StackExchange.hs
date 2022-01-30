@@ -22,25 +22,12 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
--- fix key from your application edit page
--- https://stackapps.com/apps/oauth
-stackexchangeAppKey :: ByteString
-stackexchangeAppKey = "xxxxxx"
-
-stackexchangeKey :: OAuth2
-stackexchangeKey = OAuth2
-  { oauthClientId            = "xx"
-  , oauthClientSecret        = Just "xxxxxxxxxxxxxxx"
-  , oauthCallback            = Just [uri|http://c.haskellcn.org/cb|]
-  , oauthOAuthorizeEndpoint  = [uri|https://stackexchange.com/oauth|]
-  , oauthAccessTokenEndpoint =
-    [uri|https://stackexchange.com/oauth/access_token|]
-  }
-
 userInfoUri :: URI
 userInfoUri = [uri|https://api.stackexchange.com/2.2/me?site=stackoverflow|]
 
-data StackExchange = StackExchange deriving (Show, Generic)
+type AppKey = ByteString
+
+data StackExchange = StackExchange OAuth2 AppKey deriving (Show, Generic)
 
 instance Hashable StackExchange
 
@@ -49,20 +36,19 @@ instance IDP StackExchange
 instance HasLabel StackExchange
 
 instance HasTokenReq StackExchange where
-  tokenReq _ mgr = fetchAccessToken2 mgr stackexchangeKey
+  tokenReq (StackExchange key _) mgr = fetchAccessToken2 mgr key
 
 instance HasTokenRefreshReq StackExchange where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr stackexchangeKey
+  tokenRefreshReq (StackExchange key _) mgr = refreshAccessToken mgr key
 
 instance HasUserReq StackExchange where
-  userReq _ mgr token = do
+  userReq (StackExchange _ appKey) mgr token = do
     re <- authGetBS2 mgr token
-              (userInfoUri `appendStackExchangeAppKey` stackexchangeAppKey)
+              (userInfoUri `appendStackExchangeAppKey` appKey)
     return (re >>= (bimap BSL.pack toLoginUser . eitherDecode))
 
 instance HasAuthUri StackExchange where
-  authUri _ = createCodeUri stackexchangeKey [ ("state", "StackExchange.test-state-123")
-                                          ]
+  authUri (StackExchange key _) = createCodeUri key [("state", "StackExchange.test-state-123")]
 
 data StackExchangeResp = StackExchangeResp { hasMore :: Bool
                                            , quotaMax :: Integer

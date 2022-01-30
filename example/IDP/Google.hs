@@ -14,17 +14,7 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
--- | oauthCallback = Just "https://developers.google.com/oauthplayground"
-googleKey :: OAuth2
-googleKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://127.0.0.1:9988/googleCallback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://accounts.google.com/o/oauth2/auth|]
-  , oauthAccessTokenEndpoint = [uri|https://www.googleapis.com/oauth2/v3/token|]
-  }
-
-data Google = Google deriving (Show, Generic)
+data Google = Google OAuth2 deriving (Show, Generic)
 
 instance Hashable Google
 
@@ -33,10 +23,10 @@ instance IDP Google
 instance HasLabel Google
 
 instance HasTokenReq Google where
-  tokenReq _ mgr = fetchAccessToken mgr googleKey
+  tokenReq (Google key) mgr = fetchAccessToken mgr key
 
 instance HasTokenRefreshReq Google where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr googleKey
+  tokenRefreshReq (Google key) mgr = refreshAccessToken mgr key
 
 instance HasUserReq Google where
   userReq _ mgr at = do
@@ -44,7 +34,7 @@ instance HasUserReq Google where
     return (second toLoginUser re)
 
 instance HasAuthUri Google where
-  authUri _ = createCodeUri googleKey [ ("state", "Google.test-state-123")
+  authUri (Google key) = createCodeUri key [ ("state", "Google.test-state-123")
                                       , ("scope", "https://www.googleapis.com/auth/userinfo.email")
                                         ]
 

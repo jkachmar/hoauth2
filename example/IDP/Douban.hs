@@ -14,16 +14,7 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
-doubanKey :: OAuth2
-doubanKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://localhost:9999/oauthCallback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://www.douban.com/service/auth2/auth|]
-  , oauthAccessTokenEndpoint = [uri|https://www.douban.com/service/auth2/token|]
-  }
-
-data Douban = Douban deriving (Show, Generic)
+data Douban = Douban OAuth2 deriving (Show, Generic)
 
 instance Hashable Douban
 
@@ -32,10 +23,10 @@ instance IDP Douban
 instance HasLabel Douban
 
 instance HasTokenRefreshReq Douban where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr doubanKey
+  tokenRefreshReq (Douban key) mgr = refreshAccessToken mgr key
 
 instance HasTokenReq Douban where
-  tokenReq _ mgr = fetchAccessToken2 mgr doubanKey
+  tokenReq (Douban key) mgr = fetchAccessToken2 mgr key
 
 instance HasUserReq Douban where
   userReq _ mgr at = do
@@ -43,7 +34,7 @@ instance HasUserReq Douban where
     return (second toLoginUser re)
 
 instance HasAuthUri Douban where
-  authUri _ = createCodeUri doubanKey [ ("state", "Douban.test-state-123")
+  authUri (Douban key) = createCodeUri key [ ("state", "Douban.test-state-123")
                                         ]
 
 data DoubanUser = DoubanUser { name :: Text

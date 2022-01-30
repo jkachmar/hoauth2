@@ -15,20 +15,11 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
-fitbitKey :: OAuth2
-fitbitKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://www.fitbit.com/oauth2/authorize|]
-  , oauthAccessTokenEndpoint = [uri|https://api.fitbit.com/oauth2/token|]
-  }
-
 userInfoUri :: URI
 userInfoUri = [uri|https://api.fitbit.com/1/user/-/profile.json|]
 
 
-data Fitbit = Fitbit deriving (Show, Generic)
+data Fitbit = Fitbit OAuth2 deriving (Show, Generic)
 
 instance Hashable Fitbit
 
@@ -37,10 +28,10 @@ instance IDP Fitbit
 instance HasLabel Fitbit
 
 instance HasTokenReq Fitbit where
-  tokenReq _ mgr = fetchAccessToken mgr fitbitKey
+  tokenReq (Fitbit key) mgr = fetchAccessToken mgr key
 
 instance HasTokenRefreshReq Fitbit where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr fitbitKey
+  tokenRefreshReq (Fitbit key) mgr = refreshAccessToken mgr key
 
 instance HasUserReq Fitbit where
   userReq _ mgr at = do
@@ -48,7 +39,7 @@ instance HasUserReq Fitbit where
     return (second toLoginUser re)
 
 instance HasAuthUri Fitbit where
-  authUri _ = createCodeUri fitbitKey [ ("state", "Fitbit.test-state-123")
+  authUri (Fitbit key) = createCodeUri key [ ("state", "Fitbit.test-state-123")
                                         , ("scope", "profile")
                                         ]
 

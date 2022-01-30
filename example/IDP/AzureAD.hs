@@ -14,16 +14,7 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
-azureADKey :: OAuth2
-azureADKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://login.windows.net/common/oauth2/authorize|]
-  , oauthAccessTokenEndpoint = [uri|https://login.windows.net/common/oauth2/token|]
-  }
-
-data AzureAD = AzureAD deriving (Show, Generic)
+data AzureAD = AzureAD OAuth2 deriving (Show, Generic)
 
 instance Hashable AzureAD
 
@@ -32,10 +23,10 @@ instance IDP AzureAD
 instance HasLabel AzureAD
 
 instance HasTokenRefreshReq AzureAD where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr azureADKey
+  tokenRefreshReq (AzureAD key) mgr = refreshAccessToken mgr key
 
 instance HasTokenReq AzureAD where
-  tokenReq _ mgr = fetchAccessToken mgr azureADKey
+  tokenReq (AzureAD key) mgr = fetchAccessToken mgr key
 
 instance HasUserReq AzureAD where
   userReq _ mgr at = do
@@ -43,7 +34,7 @@ instance HasUserReq AzureAD where
     return (second toLoginUser re)
 
 instance HasAuthUri AzureAD where
-  authUri _ = createCodeUri azureADKey [ ("state", "AzureAD.test-state-123")
+  authUri (AzureAD key) = createCodeUri key [ ("state", "AzureAD.test-state-123")
                                        , ("scope", "openid,profile")
                                        , ("resource", "https://graph.microsoft.com")
                                        ]

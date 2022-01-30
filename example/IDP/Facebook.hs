@@ -14,17 +14,7 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
-facebookKey :: OAuth2
-facebookKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://t.haskellcn.org/cb|]
-  , oauthOAuthorizeEndpoint  = [uri|https://www.facebook.com/dialog/oauth|]
-  , oauthAccessTokenEndpoint =
-    [uri|https://graph.facebook.com/v2.3/oauth/access_token|]
-  }
-
-data Facebook = Facebook deriving (Show, Generic)
+data Facebook = Facebook OAuth2 deriving (Show, Generic)
 
 instance Hashable Facebook
 
@@ -33,10 +23,10 @@ instance IDP Facebook
 instance HasLabel Facebook
 
 instance HasTokenReq Facebook where
-  tokenReq _ mgr = fetchAccessToken2 mgr facebookKey
+  tokenReq (Facebook key) mgr = fetchAccessToken2 mgr key
 
 instance HasTokenRefreshReq Facebook where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr facebookKey
+  tokenRefreshReq (Facebook key) mgr = refreshAccessToken mgr key
 
 instance HasUserReq Facebook where
   userReq _ mgr at = do
@@ -44,7 +34,7 @@ instance HasUserReq Facebook where
     return (second toLoginUser re)
 
 instance HasAuthUri Facebook where
-  authUri _ = createCodeUri facebookKey [ ("state", "Facebook.test-state-123")
+  authUri (Facebook key) = createCodeUri key [ ("state", "Facebook.test-state-123")
                                         , ("scope", "user_about_me,email")
                                         ]
 

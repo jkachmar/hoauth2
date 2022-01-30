@@ -47,6 +47,7 @@ Extra-source-files: README.md
                     example/IDP/Linkedin.hs
                     example/IDP/Slack.hs
                     example/IDP/Auth0.hs
+                    example/Keys.hs
                     example/IDP.hs
                     example/App.hs
                     example/Session.hs
@@ -106,6 +107,7 @@ Executable demo-server
                        IDP.Weibo
                        IDP.Linkedin
                        IDP.ZOHO
+                       Keys
                        Session
                        Types
                        Utils

@@ -15,19 +15,7 @@ import URI.ByteString
 import URI.ByteString.QQ
 import Utils
 
--- https://api.slack.com/authentication/sign-in-with-slack
--- https://slack.com/.well-known/openid-configuration
-slackKey :: OAuth2
-slackKey =
-  OAuth2
-    { oauthClientId = ""
-    , oauthClientSecret = Just ""
-    , oauthCallback = Just [uri|http://localhost:9988/oauth2/callback|]
-    , oauthOAuthorizeEndpoint = [uri|https://slack.com/openid/connect/authorize|]
-    , oauthAccessTokenEndpoint = [uri|https://slack.com/api/openid.connect.token|]
-    }
-
-data Slack = Slack
+data Slack = Slack OAuth2
   deriving (Show, Generic)
 
 instance Hashable Slack
@@ -37,10 +25,10 @@ instance IDP Slack
 instance HasLabel Slack
 
 instance HasTokenReq Slack where
-  tokenReq _ mgr = fetchAccessToken mgr slackKey
+  tokenReq (Slack key) mgr = fetchAccessToken mgr key
 
 instance HasTokenRefreshReq Slack where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr slackKey
+  tokenRefreshReq (Slack key) mgr = refreshAccessToken mgr key
 
 instance HasUserReq Slack where
   userReq _ mgr at = do
@@ -48,9 +36,9 @@ instance HasUserReq Slack where
     return (second toLoginUser re)
 
 instance HasAuthUri Slack where
-  authUri _ =
+  authUri (Slack key) =
     createCodeUri
-      slackKey
+      key
       [ ("state", "Slack.test-state-123"),
         ( "scope",
           "openid profile email"

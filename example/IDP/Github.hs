@@ -14,19 +14,8 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
--- | http://developer.github.com/v3/oauth/
-githubKey :: OAuth2
-githubKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://127.0.0.1:9988/githubCallback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://github.com/login/oauth/authorize|]
-  , oauthAccessTokenEndpoint =
-    [uri|https://github.com/login/oauth/access_token|]
-  }
 
-
-data Github = Github deriving (Show, Generic)
+data Github = Github OAuth2 deriving (Show, Generic)
 
 instance Hashable Github
 
@@ -35,10 +24,10 @@ instance IDP Github
 instance HasLabel Github
 
 instance HasTokenReq Github where
-  tokenReq _ mgr = fetchAccessToken mgr githubKey
+  tokenReq (Github key) mgr = fetchAccessToken mgr key
 
 instance HasTokenRefreshReq Github where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr githubKey
+  tokenRefreshReq (Github key) mgr = refreshAccessToken mgr key
 
 instance HasUserReq Github where
   userReq _ mgr at = do
@@ -46,7 +35,7 @@ instance HasUserReq Github where
     return (second toLoginUser re)
 
 instance HasAuthUri Github where
-  authUri _ = createCodeUri githubKey [("state", "Github.test-state-123")]
+  authUri (Github key) = createCodeUri key [("state", "Github.test-state-123")]
 
 data GithubUser = GithubUser { name :: Text
                              , id   :: Integer

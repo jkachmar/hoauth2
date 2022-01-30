@@ -15,16 +15,7 @@ import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
 
-dropboxKey :: OAuth2
-dropboxKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://www.dropbox.com/1/oauth2/authorize|]
-  , oauthAccessTokenEndpoint = [uri|https://api.dropboxapi.com/oauth2/token|]
-  }
-
-data Dropbox = Dropbox deriving (Show, Generic)
+data Dropbox = Dropbox OAuth2 deriving (Show, Generic)
 
 instance Hashable Dropbox
 
@@ -33,10 +24,10 @@ instance IDP Dropbox
 instance HasLabel Dropbox
 
 instance HasTokenReq Dropbox where
-  tokenReq _ mgr = fetchAccessToken mgr dropboxKey
+  tokenReq (Dropbox key) mgr = fetchAccessToken mgr key
 
 instance HasTokenRefreshReq Dropbox where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr dropboxKey
+  tokenRefreshReq (Dropbox key) mgr = refreshAccessToken mgr key
 
 instance HasUserReq Dropbox where
   userReq _ mgr at = do
@@ -45,7 +36,7 @@ instance HasUserReq Dropbox where
 
 
 instance HasAuthUri Dropbox where
-  authUri _ = createCodeUri dropboxKey [ ("state", "Dropbox.test-state-123")
+  authUri (Dropbox key) = createCodeUri key [ ("state", "Dropbox.test-state-123")
                                         ]
 
 newtype DropboxName = DropboxName { displayName :: Text }

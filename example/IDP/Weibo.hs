@@ -17,17 +17,8 @@ import URI.ByteString
 import URI.ByteString.QQ
 import Utils
 
-weiboKey :: OAuth2
-weiboKey = OAuth2
-  { oauthClientId            = ""
-  , oauthClientSecret        = Just ""
-  , oauthCallback            = Just [uri|http://127.0.0.1:9988/oauthCallback|]
-  , oauthOAuthorizeEndpoint  = [uri|https://api.weibo.com/oauth2/authorize|]
-  , oauthAccessTokenEndpoint = [uri|https://api.weibo.com/oauth2/access_token|]
-  }
 
-
-data Weibo = Weibo deriving (Show, Generic)
+newtype Weibo = Weibo OAuth2 deriving (Show, Generic)
 
 instance Hashable Weibo
 
@@ -36,10 +27,10 @@ instance IDP Weibo
 instance HasLabel Weibo
 
 instance HasTokenRefreshReq Weibo where
-  tokenRefreshReq _ mgr = refreshAccessToken mgr weiboKey
+  tokenRefreshReq (Weibo key) mgr = refreshAccessToken mgr key
 
 instance HasTokenReq Weibo where
-  tokenReq _ mgr = fetchAccessToken mgr weiboKey
+  tokenReq (Weibo key) mgr = fetchAccessToken mgr key
 
 -- fetch user info via
 -- GET
@@ -50,9 +41,9 @@ instance HasUserReq Weibo where
     return (re >>= (bimap BSL.pack toLoginUser . eitherDecode))
 
 instance HasAuthUri Weibo where
-  authUri _ =
+  authUri (Weibo key) =
     createCodeUri
-      weiboKey
+      key
       [ ("state", "Weibo.test-state-123")
       ]
 
