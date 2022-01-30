@@ -9,7 +9,6 @@ import Data.Bifunctor
 import Data.Hashable
 import Data.Text.Lazy (Text)
 import GHC.Generics
-import Keys
 import Network.OAuth.OAuth2
 import Types
 import URI.ByteString
@@ -18,6 +17,19 @@ import Utils
 
 data Okta = Okta
   deriving (Show, Generic)
+
+oktaKey :: OAuth2
+oktaKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://dev-148986.oktapreview.com/oauth2/v1/authorize|]
+  , oauthAccessTokenEndpoint = [uri|https://dev-148986.oktapreview.com/oauth2/v1/token|]
+  }
+
+userInfoUri :: URI
+userInfoUri = [uri|https://hw2.trexcloud.com/oauth2/v1/userinfo|]
+-- userInfoUri = [uri|https://dev-148986.oktapreview.com/oauth2/v1/userinfo|]
 
 instance Hashable Okta
 
@@ -61,11 +73,6 @@ data OktaUser = OktaUser
 instance FromJSON OktaUser where
   parseJSON =
     genericParseJSON defaultOptions {fieldLabelModifier = camelTo2 '_'}
-
-userInfoUri :: URI
-userInfoUri = [uri|https://hw2.trexcloud.com/oauth2/v1/userinfo|]
-
--- userInfoUri = [uri|https://dev-148986.oktapreview.com/oauth2/v1/userinfo|]
 
 toLoginUser :: OktaUser -> LoginUser
 toLoginUser ouser = LoginUser {loginUserName = name ouser}

@@ -8,12 +8,23 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Text.Lazy       (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+-- | http://developer.github.com/v3/oauth/
+githubKey :: OAuth2
+githubKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://127.0.0.1:9988/githubCallback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://github.com/login/oauth/authorize|]
+  , oauthAccessTokenEndpoint =
+    [uri|https://github.com/login/oauth/access_token|]
+  }
+
 
 data Github = Github deriving (Show, Generic)
 

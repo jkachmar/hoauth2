@@ -8,12 +8,21 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Text.Lazy       (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+-- | oauthCallback = Just "https://developers.google.com/oauthplayground"
+googleKey :: OAuth2
+googleKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://127.0.0.1:9988/googleCallback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://accounts.google.com/o/oauth2/auth|]
+  , oauthAccessTokenEndpoint = [uri|https://www.googleapis.com/oauth2/v3/token|]
+  }
 
 data Google = Google deriving (Show, Generic)
 

@@ -9,12 +9,20 @@ import Data.Bifunctor
 import Data.Hashable
 import Data.Text.Lazy (Text)
 import GHC.Generics
-import Keys
 import Network.OAuth.OAuth2
 import Types
 import URI.ByteString
 import URI.ByteString.QQ
 import Utils
+
+auth0Key :: OAuth2
+auth0Key = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://foo.auth0.com/authorize|]
+  , oauthAccessTokenEndpoint = [uri|https://foo.auth0.com/oauth/token|]
+  }
 
 data Auth0 = Auth0
   deriving (Show, Generic)

@@ -8,12 +8,25 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Text.Lazy       (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+zohoKey :: OAuth2
+zohoKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://accounts.zoho.com/oauth/v2/auth|]
+  , oauthAccessTokenEndpoint = [uri|https://accounts.zoho.com/oauth/v2/token|]
+  }
+
+userInfoUri :: URI
+userInfoUri = [uri|https://www.zohoapis.com/crm/v2/users|]
+  -- `oauth/user/info` url does not work and find answer from
+  -- https://help.zoho.com/portal/community/topic/oauth2-api-better-document-oauth-user-info
 
 data ZOHO = ZOHO deriving (Show, Generic)
 
@@ -54,10 +67,6 @@ instance FromJSON ZOHOUserResp where
 instance FromJSON ZOHOUser where
     parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = camelTo2 '_' }
 
-userInfoUri :: URI
-userInfoUri = [uri|https://www.zohoapis.com/crm/v2/users|]
-  -- `oauth/user/info` url does not work and find answer from
-  -- https://help.zoho.com/portal/community/topic/oauth2-api-better-document-oauth-user-info
 
 toLoginUser :: ZOHOUserResp -> LoginUser
 toLoginUser resp =

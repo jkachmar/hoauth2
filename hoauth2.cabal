@@ -34,10 +34,9 @@ Copyright:           Haisheng Wu
 Category:            Network
 Build-type:          Simple
 Stability:           Beta
-Tested-With:         GHC <= 8.6.5
+Tested-With:         GHC <= 8.10
 
 Extra-source-files: README.md
-                    example/Keys.hs.sample
                     example/IDP/AzureAD.hs
                     example/IDP/Google.hs
                     example/IDP/Weibo.hs
@@ -62,10 +61,6 @@ Extra-source-files: README.md
 Source-Repository head
   Type:     git
   Location: git://github.com/freizl/hoauth2.git
-
-Flag test
-  Description: Build the executables
-  Default: False
 
 Library
   hs-source-dirs:   src
@@ -94,11 +89,6 @@ Library
                -fno-warn-unused-do-bind
 
 Executable demo-server
-  if flag(test)
-    Buildable: True
-  else
-    Buildable: False
-
   main-is:             main.hs
   other-modules:       IDP,
                        App
@@ -116,7 +106,6 @@ Executable demo-server
                        IDP.Weibo
                        IDP.Linkedin
                        IDP.ZOHO
-                       Keys
                        Session
                        Types
                        Utils

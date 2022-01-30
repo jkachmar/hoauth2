@@ -15,13 +15,30 @@ import           Data.Hashable
 import           Data.Text.Lazy             (Text)
 import qualified Data.Text.Lazy             as TL
 import           GHC.Generics
-import           Keys
 import           Lens.Micro
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+-- fix key from your application edit page
+-- https://stackapps.com/apps/oauth
+stackexchangeAppKey :: ByteString
+stackexchangeAppKey = "xxxxxx"
+
+stackexchangeKey :: OAuth2
+stackexchangeKey = OAuth2
+  { oauthClientId            = "xx"
+  , oauthClientSecret        = Just "xxxxxxxxxxxxxxx"
+  , oauthCallback            = Just [uri|http://c.haskellcn.org/cb|]
+  , oauthOAuthorizeEndpoint  = [uri|https://stackexchange.com/oauth|]
+  , oauthAccessTokenEndpoint =
+    [uri|https://stackexchange.com/oauth/access_token|]
+  }
+
+userInfoUri :: URI
+userInfoUri = [uri|https://api.stackexchange.com/2.2/me?site=stackoverflow|]
 
 data StackExchange = StackExchange deriving (Show, Generic)
 
@@ -62,9 +79,6 @@ instance FromJSON StackExchangeResp where
     parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = camelTo2 '_' }
 instance FromJSON StackExchangeUser where
     parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = camelTo2 '_' }
-
-userInfoUri :: URI
-userInfoUri = [uri|https://api.stackexchange.com/2.2/me?site=stackoverflow|]
 
 toLoginUser :: StackExchangeResp -> LoginUser
 toLoginUser StackExchangeResp {..} =

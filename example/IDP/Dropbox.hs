@@ -9,12 +9,20 @@ import qualified Data.ByteString.Lazy.Char8 as BSL
 import           Data.Hashable
 import           Data.Text.Lazy             (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+dropboxKey :: OAuth2
+dropboxKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://www.dropbox.com/1/oauth2/authorize|]
+  , oauthAccessTokenEndpoint = [uri|https://api.dropboxapi.com/oauth2/token|]
+  }
 
 data Dropbox = Dropbox deriving (Show, Generic)
 

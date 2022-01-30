@@ -8,12 +8,20 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Text.Lazy       (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+azureADKey :: OAuth2
+azureADKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://login.windows.net/common/oauth2/authorize|]
+  , oauthAccessTokenEndpoint = [uri|https://login.windows.net/common/oauth2/token|]
+  }
 
 data AzureAD = AzureAD deriving (Show, Generic)
 

@@ -8,12 +8,20 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Text.Lazy       (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+doubanKey :: OAuth2
+doubanKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://localhost:9999/oauthCallback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://www.douban.com/service/auth2/auth|]
+  , oauthAccessTokenEndpoint = [uri|https://www.douban.com/service/auth2/token|]
+  }
 
 data Douban = Douban deriving (Show, Generic)
 

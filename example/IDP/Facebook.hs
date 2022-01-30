@@ -8,12 +8,21 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Text.Lazy       (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+facebookKey :: OAuth2
+facebookKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://t.haskellcn.org/cb|]
+  , oauthOAuthorizeEndpoint  = [uri|https://www.facebook.com/dialog/oauth|]
+  , oauthAccessTokenEndpoint =
+    [uri|https://graph.facebook.com/v2.3/oauth/access_token|]
+  }
 
 data Facebook = Facebook deriving (Show, Generic)
 

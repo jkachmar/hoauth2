@@ -9,12 +9,23 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Text.Lazy       (Text)
 import           GHC.Generics
-import           Keys
 import           Network.OAuth.OAuth2
 import           Types
 import           URI.ByteString
 import           URI.ByteString.QQ
 import           Utils
+
+fitbitKey :: OAuth2
+fitbitKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://localhost:9988/oauth2/callback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://www.fitbit.com/oauth2/authorize|]
+  , oauthAccessTokenEndpoint = [uri|https://api.fitbit.com/oauth2/token|]
+  }
+
+userInfoUri :: URI
+userInfoUri = [uri|https://api.fitbit.com/1/user/-/profile.json|]
 
 
 data Fitbit = Fitbit deriving (Show, Generic)
@@ -55,9 +66,6 @@ instance FromJSON FitbitUser where
         <*> ((o .: "user") >>= (.: "age"))
     parseJSON _ = mzero
 
-
-userInfoUri :: URI
-userInfoUri = [uri|https://api.fitbit.com/1/user/-/profile.json|]
 
 toLoginUser :: FitbitUser -> LoginUser
 toLoginUser ouser = LoginUser { loginUserName = userName ouser }

@@ -11,12 +11,21 @@ import Data.Hashable
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as TL
 import GHC.Generics
-import Keys
 import Network.OAuth.OAuth2
 import Types
 import URI.ByteString
 import URI.ByteString.QQ
 import Utils
+
+weiboKey :: OAuth2
+weiboKey = OAuth2
+  { oauthClientId            = ""
+  , oauthClientSecret        = Just ""
+  , oauthCallback            = Just [uri|http://127.0.0.1:9988/oauthCallback|]
+  , oauthOAuthorizeEndpoint  = [uri|https://api.weibo.com/oauth2/authorize|]
+  , oauthAccessTokenEndpoint = [uri|https://api.weibo.com/oauth2/access_token|]
+  }
+
 
 data Weibo = Weibo deriving (Show, Generic)
 
